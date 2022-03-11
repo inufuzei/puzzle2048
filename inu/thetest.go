@@ -5,35 +5,35 @@ import (
 )
 
 type Dog struct {
-	color string
-	speed float64
-	power float64
+	Color string
+	Speed float64
+	Power float64
 }
 
-func (x *Dog) hashiru() {
-	fmt.Println("走っている", x.color)
+func (x *Dog) Hashiru() string {
+	return fmt.Sprintf("走っている %v", x.Color)
 }
-func (x *Dog) stukareru() {
-	fmt.Println("疲れている", x.color)
+func (x *Dog) Stukareru() string {
+	return fmt.Sprintf("疲れている %v", x.Color)
 }
 
 func main() {
 	a := Dog{
-		color: "白",
-		speed: 16.23,
-		power: 75.56,
+		Color: "白",
+		Speed: 16.23,
+		Power: 75.56,
 	}
 	b := Dog{
-		color: "黒",
-		speed: 32.18,
-		power: 52.2,
+		Color: "黒",
+		Speed: 32.18,
+		Power: 52.2,
 	}
 	c := Dog{
-		color: "マダラ",
-		speed: 36.24,
-		power: 49.98,
+		Color: "マダラ",
+		Speed: 36.24,
+		Power: 49.98,
 	}
-	a.hashiru()
-	b.stukareru()
-	c.hashiru()
+	a.Hashiru()
+	b.Stukareru()
+	c.Hashiru()
 }
