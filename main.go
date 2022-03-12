@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/inufuzei/puzzle2048/inu"
 	"golang.org/x/image/font"
@@ -33,6 +34,7 @@ func init() {
 }
 
 type Game struct {
+	keys       []ebiten.Key
 	Tester2187 inu.Dog
 	Tester4893 inu.Dog
 	Msg        string
@@ -41,6 +43,7 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
+	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
 	g.count = g.count + 1
 	if g.count < 60 {
 		return nil
@@ -57,8 +60,12 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-
-	text.Draw(screen, g.Msg, mPlus1pRegular_ttf, 90, 120, color.White)
+	text.Draw(screen, g.Msg, mPlus1pRegular_ttf, 120, 140, color.White)
+	for i, k := range g.keys {
+		posY := (1 + i) * 20
+		s := k.String()
+		text.Draw(screen, s, mPlus1pRegular_ttf, 0, posY, color.White)
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -67,7 +74,6 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func main() {
 	ebiten.SetWindowSize(640, 480)
-	ebiten.SetFPSMode()
 	ebiten.SetWindowTitle("Dogs run")
 	game := &Game{
 		Tester2187: inu.Dog{
