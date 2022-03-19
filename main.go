@@ -36,13 +36,14 @@ func init() {
 }
 
 type Game struct {
-	keys         []ebiten.Key
-	Tester2187   inu.Dog
-	Tester4893   inu.Dog
-	Msg          string
-	count        int
-	Witch        bool
-	Questionlist []tyoco.Tyoco
+	keys           []ebiten.Key
+	Tester2187     inu.Dog
+	Tester4893     inu.Dog
+	Msg            string
+	count          int
+	Witch          bool
+	Questionlist   []tyoco.Tyoco
+	Questionnumber uint
 }
 
 func (g *Game) Update() error {
@@ -69,7 +70,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	//s := k.String()
 	//text.Draw(screen, s, mPlus1pRegular_ttf, 100, posY, color.White)
 	//}
-	text.Draw(screen, "4+5=\n\n\n\nA,", mPlus1pRegular_ttf, 0, 24, color.White)
+	t := g.Questionlist[g.Questionnumber]
+	q := t.Question
+	a := t.Answer
+	text.Draw(screen, q, mPlus1pRegular_ttf, 0, 24, color.White)
 	if len(g.keys) > 0 {
 		akey := g.keys[0]
 		s := akey.String()
@@ -77,7 +81,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			s = s[5:]
 		}
 		text.Draw(screen, s, mPlus1pRegular_ttf, 70, 24, color.White)
-		if akey == ebiten.Key9 {
+
+		if s == a {
 			red := color.RGBA{
 				R: 255,
 				G: 100,
