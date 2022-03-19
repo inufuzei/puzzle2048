@@ -83,13 +83,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		text.Draw(screen, s, mPlus1pRegular_ttf, 70, 24, color.White)
 
 		if s == a {
+			g.Questionnumber = g.Questionnumber + 1
 			red := color.RGBA{
 				R: 255,
 				G: 100,
 				B: 60,
 				A: 255,
 			}
-			text.Draw(screen, "正解", mPlus1pRegular_ttf, 70, 55, red)
+			text.Draw(screen, "正解", mPlus1pRegular_ttf, 70, 75, red)
 		} else {
 			blue2 := color.RGBA{
 				R: 60,
@@ -97,7 +98,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				B: 255,
 				A: 255,
 			}
-			text.Draw(screen, "残念", mPlus1pRegular_ttf, 70, 55, blue2)
+			text.Draw(screen, "残念", mPlus1pRegular_ttf, 70, 755, blue2)
 		}
 		text.Draw(screen, "FINAL ANSWER?????", mPlus1pRegular_ttf, 150, 230, color.White)
 	}
