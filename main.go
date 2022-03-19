@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/inufuzei/puzzle2048/inu"
+	"github.com/inufuzei/puzzle2048/tyoco"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -35,12 +36,13 @@ func init() {
 }
 
 type Game struct {
-	keys       []ebiten.Key
-	Tester2187 inu.Dog
-	Tester4893 inu.Dog
-	Msg        string
-	count      int
-	Witch      bool
+	keys         []ebiten.Key
+	Tester2187   inu.Dog
+	Tester4893   inu.Dog
+	Msg          string
+	count        int
+	Witch        bool
+	Questionlist []tyoco.Tyoco
 }
 
 func (g *Game) Update() error {
@@ -114,6 +116,7 @@ func main() {
 			Speed: 32.18,
 			Power: 52.2,
 		},
+		Questionlist: tyoco.Xlist,
 	}
 
 	if err := ebiten.RunGame(game); err != nil {
