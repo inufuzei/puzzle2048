@@ -3,6 +3,7 @@ package main
 import (
 	"image/color"
 	"log"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
@@ -60,16 +61,43 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	text.Draw(screen, g.Msg, mPlus1pRegular_ttf, 120, 140, color.White)
-	for i, k := range g.keys {
-		posY := (1 + i) * 20
-		s := k.String()
-		text.Draw(screen, s, mPlus1pRegular_ttf, 0, posY, color.White)
+	//text.Draw(screen, g.Msg, mPlus1pRegular_ttf, 120, 140, color.White)
+	//for i, k := range g.keys {
+	//posY := (1 + i) * 20
+	//s := k.String()
+	//text.Draw(screen, s, mPlus1pRegular_ttf, 100, posY, color.White)
+	//}
+	text.Draw(screen, "4+5=\n\n\n\nA,", mPlus1pRegular_ttf, 0, 24, color.White)
+	if len(g.keys) > 0 {
+		akey := g.keys[0]
+		s := akey.String()
+		if strings.HasPrefix(s, "Digit") {
+			s = s[5:]
+		}
+		text.Draw(screen, s, mPlus1pRegular_ttf, 70, 24, color.White)
+		if akey == ebiten.Key9 {
+			red := color.RGBA{
+				R: 255,
+				G: 100,
+				B: 60,
+				A: 255,
+			}
+			text.Draw(screen, "正解", mPlus1pRegular_ttf, 70, 55, red)
+		} else {
+			blue2 := color.RGBA{
+				R: 60,
+				G: 150,
+				B: 255,
+				A: 255,
+			}
+			text.Draw(screen, "残念", mPlus1pRegular_ttf, 70, 55, blue2)
+		}
+		text.Draw(screen, "FINAL ANSWER?????", mPlus1pRegular_ttf, 150, 230, color.White)
 	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 320, 240
+	return 480, 360
 }
 
 func main() {
