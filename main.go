@@ -9,10 +9,16 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/inufuzei/puzzle2048/dnd"
 	"github.com/inufuzei/puzzle2048/inu"
 	"github.com/inufuzei/puzzle2048/tyoco"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
+)
+
+const (
+	screenWidth  = 480
+	screenHeight = 360
 )
 
 var (
@@ -44,9 +50,80 @@ type Game struct {
 	Witch          bool
 	Questionlist   []tyoco.Tyoco
 	Questionnumber uint
+
+	// For Drag&Drop
+	touchIDs []ebiten.TouchID
+	strokes  map[*dnd.Stroke]struct{}
+	sprites  []*dnd.Sprite
+}
+
+func (g *Game) spriteAt(x, y int) *dnd.Sprite {
+	// As the sprites are ordered from back to front,
+	// search the clicked/touched sprite in reverse order.
+	for i := len(g.sprites) - 1; i >= 0; i-- {
+		s := g.sprites[i]
+		if s.In(x, y) {
+			return s
+		}
+	}
+	return nil
+}
+
+func (g *Game) updateEachStroke(stroke *dnd.Stroke) {
+	stroke.Update()
+	if !stroke.IsReleased() {
+		return
+	}
+
+	s := stroke.DraggingObject().(*dnd.Sprite)
+	if s == nil {
+		return
+	}
+
+	x, y := stroke.PositionDiff()
+	s.MoveBy(screenWidth, screenHeight, x, y)
+
+	index := -1
+	for i, ss := range g.sprites {
+		if ss == s {
+			index = i
+			break
+		}
+	}
+
+	// Move the dragged sprite to the front.
+	g.sprites = append(g.sprites[:index], g.sprites[index+1:]...)
+	g.sprites = append(g.sprites, s)
+
+	stroke.SetDraggingObject(nil)
+}
+
+func (g *Game) updateStrokes() error {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		s := dnd.NewStroke(&dnd.MouseStrokeSource{})
+		s.SetDraggingObject(g.spriteAt(s.Position()))
+		g.strokes[s] = struct{}{}
+	}
+	g.touchIDs = inpututil.AppendJustPressedTouchIDs(g.touchIDs[:0])
+	for _, id := range g.touchIDs {
+		s := dnd.NewStroke(&dnd.TouchStrokeSource{ID: id})
+		s.SetDraggingObject(g.spriteAt(s.Position()))
+		g.strokes[s] = struct{}{}
+	}
+
+	for s := range g.strokes {
+		g.updateEachStroke(s)
+		if s.IsReleased() {
+			delete(g.strokes, s)
+		}
+	}
+	return nil
 }
 
 func (g *Game) Update() error {
+	if err := g.updateStrokes(); err != nil {
+		return err
+	}
 	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
 	g.count = g.count + 1
 	if g.count < 60 {
@@ -63,7 +140,31 @@ func (g *Game) Update() error {
 	return nil
 }
 
+func (g *Game) drawSprites(screen *ebiten.Image) {
+	draggingSprites := map[*dnd.Sprite]struct{}{}
+	for s := range g.strokes {
+		if sprite := s.DraggingObject().(*dnd.Sprite); sprite != nil {
+			draggingSprites[sprite] = struct{}{}
+		}
+	}
+
+	for _, s := range g.sprites {
+		if _, ok := draggingSprites[s]; ok {
+			continue
+		}
+		s.Draw(screen, 0, 0, 1)
+	}
+	for s := range g.strokes {
+		dx, dy := s.PositionDiff()
+		if sprite := s.DraggingObject().(*dnd.Sprite); sprite != nil {
+			sprite.Draw(screen, dx, dy, 0.5)
+		}
+	}
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
+	g.drawSprites(screen)
+
 	//text.Draw(screen, g.Msg, mPlus1pRegular_ttf, 120, 140, color.White)
 	//for i, k := range g.keys {
 	//posY := (1 + i) * 20
@@ -123,6 +224,11 @@ func main() {
 			Power: 52.2,
 		},
 		Questionlist: tyoco.Xlist,
+
+		strokes: map[*dnd.Stroke]struct{}{},
+		sprites: []*dnd.Sprite{
+			dnd.NewBlock(100, 100, 50, 50, color.White),
+		},
 	}
 
 	if err := ebiten.RunGame(game); err != nil {
