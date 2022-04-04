@@ -17,6 +17,7 @@ import (
 const (
 	screenWidth  = 400
 	screenHeight = 400
+	blockSize    = uint(4)
 )
 
 var (
@@ -53,6 +54,7 @@ type Game struct {
 	touchIDs []ebiten.TouchID
 	strokes  map[*dnd.Stroke]struct{}
 	sprites  []*dnd.Sprite
+	Blocks   []*dnd.Block
 }
 
 func (g *Game) spriteAt(x, y int) *dnd.Sprite {
@@ -185,6 +187,13 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenNoWidth, screenNoH
 func main() {
 	ebiten.SetWindowSize(500, 500)
 	ebiten.SetWindowTitle("15 puzzle")
+
+	var blocks []*dnd.Block
+	for i := 0; i < int(blockSize*blockSize-1); i++ {
+		block := dnd.MakeBlock(, 0, color.White)
+		blocks = append(blocks, block)
+	}
+
 	game := &Game{
 		Tester2187: inu.Dog{
 			Color: "白",
@@ -202,6 +211,7 @@ func main() {
 		sprites: []*dnd.Sprite{
 			dnd.Primitivestripe(0, 0, 100, 100, color.White),
 		},
+		Blocks: blocks,
 	}
 
 	if err := ebiten.RunGame(game); err != nil {

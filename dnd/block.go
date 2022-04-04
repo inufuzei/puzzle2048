@@ -18,7 +18,7 @@ type Block struct {
 	Number      uint
 }
 
-func makeBlock(x, y uint, c color.Color) *Block {
+func MakeBlock(x, y uint, c color.Color) *Block {
 	image := ebiten.NewImage(BlockWidth, BlockHeight)
 	image.Fill(c)
 
@@ -27,6 +27,12 @@ func makeBlock(x, y uint, c color.Color) *Block {
 		CellnumberX: x,
 		CellnumberY: y,
 	}
+}
+
+func (b *Block) GetRegular() (uint, uint) {
+	rgularx := Block
+
+	return regularx, regulary
 }
 
 func (b *Block) GetDotX() (uint, uint) {
