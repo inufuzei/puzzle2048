@@ -3,12 +3,10 @@ package main
 import (
 	"image/color"
 	"log"
-	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/inufuzei/puzzle2048/dnd"
 	"github.com/inufuzei/puzzle2048/inu"
 	"github.com/inufuzei/puzzle2048/tyoco"
@@ -17,8 +15,8 @@ import (
 )
 
 const (
-	screenWidth  = 480
-	screenHeight = 360
+	screenWidth  = 400
+	screenHeight = 400
 )
 
 var (
@@ -165,53 +163,28 @@ func (g *Game) drawSprites(screen *ebiten.Image) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawSprites(screen)
 
-	//text.Draw(screen, g.Msg, mPlus1pRegular_ttf, 120, 140, color.White)
-	//for i, k := range g.keys {
-	//posY := (1 + i) * 20
-	//s := k.String()
-	//text.Draw(screen, s, mPlus1pRegular_ttf, 100, posY, color.White)
-	//}
-	t := g.Questionlist[g.Questionnumber]
-	q := t.Question
-	a := t.Answer
-	text.Draw(screen, q, mPlus1pRegular_ttf, 0, 24, color.White)
-	if len(g.keys) > 0 {
-		akey := g.keys[0]
-		s := akey.String()
-		if strings.HasPrefix(s, "Digit") {
-			s = s[5:]
-		}
-		text.Draw(screen, s, mPlus1pRegular_ttf, 70, 24, color.White)
-
-		if s == a {
-			g.Questionnumber = g.Questionnumber + 1
-			red := color.RGBA{
-				R: 255,
-				G: 100,
-				B: 60,
-				A: 255,
-			}
-			text.Draw(screen, "正解", mPlus1pRegular_ttf, 70, 75, red)
-		} else {
-			blue2 := color.RGBA{
-				R: 60,
-				G: 150,
-				B: 255,
-				A: 255,
-			}
-			text.Draw(screen, "残念", mPlus1pRegular_ttf, 70, 755, blue2)
-		}
-		text.Draw(screen, "FINAL ANSWER?????", mPlus1pRegular_ttf, 150, 230, color.White)
+	w := 400
+	h := 400
+	c := color.RGBA{
+		R: 40,
+		G: 60,
+		B: 90,
+		A: 100,
 	}
+	rect := ebiten.NewImage(w, h)
+	rect.Fill(c)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(0), float64(0))
+	screen.DrawImage(rect, op)
 }
 
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 480, 360
+func (g *Game) Layout(outsideWidth, outsideHeight int) (screenNoWidth, screenNoHeight int) {
+	return screenWidth, screenHeight
 }
 
 func main() {
-	ebiten.SetWindowSize(640, 480)
-	ebiten.SetWindowTitle("Dogs run")
+	ebiten.SetWindowSize(500, 500)
+	ebiten.SetWindowTitle("15 puzzle")
 	game := &Game{
 		Tester2187: inu.Dog{
 			Color: "白",
@@ -227,7 +200,7 @@ func main() {
 
 		strokes: map[*dnd.Stroke]struct{}{},
 		sprites: []*dnd.Sprite{
-			dnd.NewBlock(100, 100, 50, 50, color.White),
+			dnd.Primitivestripe(0, 0, 100, 100, color.White),
 		},
 	}
 
