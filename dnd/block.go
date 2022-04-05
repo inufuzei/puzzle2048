@@ -83,26 +83,42 @@ func (b *Block) In(x, y uint) bool {
 
 func (b *Block) MoveOn(x, y int) {
 	log.Println("MoveOn:", x, y)
-
-	if y > 0 {
-		b.CellnumberY = b.CellnumberY + 1
-		return
+	posX := int(b.CellnumberX)
+	posY := int(b.CellnumberY)
+	if x > y {
+		posX = posX + 1
 	}
 
-	if y < 0 {
-		b.CellnumberY = b.CellnumberY - 1
-		return
+	if y > x {
+		posY = posY + 1
 	}
 
-	if x > 0 {
-		b.CellnumberX = b.CellnumberX + 1
-		return
+	if -y > x {
+		posY = posY - 1
 	}
 
-	if x < 0 {
-		b.CellnumberX = b.CellnumberX - 1
-		return
+	if -x > y {
+		posX = posX - 1
 	}
+
+	if posX < 0 {
+		posX = 0
+	}
+
+	if posX >= int(blockSize) {
+		posX = int(blockSize) - 1
+	}
+
+	if posY < 0 {
+		posY = 0
+	}
+
+	if posY >= int(blockSize) {
+		posY = int(blockSize) - 1
+	}
+
+	b.CellnumberX = uint(posX)
+	b.CellnumberY = uint(posY)
 
 	log.Printf("Moved block(%v) at cell %v, %v\n",
 		b.Number, b.CellnumberX, b.CellnumberY)
