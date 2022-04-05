@@ -9,6 +9,7 @@ import (
 const (
 	BlockWidth  = 100
 	BlockHeight = 100
+	blockSize   = uint(4)
 )
 
 type Block struct {
@@ -30,8 +31,8 @@ func MakeBlock(x, y uint, c color.Color) *Block {
 }
 
 func (b *Block) GetRegular() (uint, uint) {
-	rgularx := Block
-
+	regularx := b.CellnumberX % blockSize
+	regulary := b.CellnumberY % blockSize
 	return regularx, regulary
 }
 

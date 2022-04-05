@@ -190,7 +190,8 @@ func main() {
 
 	var blocks []*dnd.Block
 	for i := 0; i < int(blockSize*blockSize-1); i++ {
-		block := dnd.MakeBlock(, 0, color.White)
+		regular := GetRegular()
+		block := dnd.MakeBlock(regular, color.White)
 		blocks = append(blocks, block)
 	}
 
