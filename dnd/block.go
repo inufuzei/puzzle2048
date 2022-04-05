@@ -1,9 +1,15 @@
 package dnd
 
 import (
+	"fmt"
 	"image/color"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
 )
 
 const (
@@ -12,6 +18,26 @@ const (
 	blockSize   = uint(4)
 )
 
+var (
+	MPlus1pRegular_ttf font.Face
+)
+
+func init() {
+	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ft, err := opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    24,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	MPlus1pRegular_ttf = ft
+}
+
 type Block struct {
 	image       *ebiten.Image
 	CellnumberX uint
@@ -19,20 +45,19 @@ type Block struct {
 	Number      uint
 }
 
-func MakeBlock(x, y uint, c color.Color) *Block {
+func MakeBlock(number uint, c color.Color) *Block {
 	image := ebiten.NewImage(BlockWidth, BlockHeight)
 	image.Fill(c)
 
 	return &Block{
-		image:       image,
-		CellnumberX: x,
-		CellnumberY: y,
+		image:  image,
+		Number: number,
 	}
 }
 
 func (b *Block) GetRegular() (uint, uint) {
-	regularx := b.CellnumberX % blockSize
-	regulary := b.CellnumberY % blockSize
+	regularx := b.Number % blockSize
+	regulary := b.Number / blockSize
 	return regularx, regulary
 }
 
@@ -67,7 +92,10 @@ func (b *Block) MoveOn(x, y int) {
 func (b *Block) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	startX, _ := b.GetDotX()
-	startY, _ := b.GetDotY()
+	startY, finishY := b.GetDotY()
 	op.GeoM.Translate(float64(startX), float64(startY))
 	screen.DrawImage(b.image, op)
+	moji := fmt.Sprintf("%v", b.Number)
+	text.Draw(screen, moji, MPlus1pRegular_ttf,
+		int(startX+45), int(finishY-45), color.Black)
 }

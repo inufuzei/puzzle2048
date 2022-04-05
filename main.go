@@ -5,13 +5,10 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/inufuzei/puzzle2048/dnd"
 	"github.com/inufuzei/puzzle2048/inu"
 	"github.com/inufuzei/puzzle2048/tyoco"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
 )
 
 const (
@@ -19,26 +16,6 @@ const (
 	screenHeight = 400
 	blockSize    = uint(4)
 )
-
-var (
-	mPlus1pRegular_ttf font.Face
-)
-
-func init() {
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-	if err != nil {
-		log.Fatal(err)
-	}
-	ft, err := opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    24,
-		DPI:     72,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	mPlus1pRegular_ttf = ft
-}
 
 type Game struct {
 	keys           []ebiten.Key
@@ -162,8 +139,32 @@ func (g *Game) drawSprites(screen *ebiten.Image) {
 	}
 }
 
+func (g *Game) drawBlocks(screen *ebiten.Image) {
+	draggingBlocks := map[*dnd.Block]struct{}{}
+	for s := range g.strokes {
+		blocks, ok := s.DraggingObject().(*dnd.Block)
+		if ok && blocks != nil {
+			draggingBlocks[blocks] = struct{}{}
+		}
+	}
+
+	for _, s := range g.Blocks {
+		if _, ok := draggingBlocks[s]; ok {
+			continue
+		}
+		s.Draw(screen)
+	}
+	for s := range g.strokes {
+		dx, dy := s.PositionDiff()
+		if block := s.DraggingObject().(*dnd.Sprite); block != nil {
+			block.Draw(screen, dx, dy, 0.5)
+		}
+	}
+}
+
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.drawSprites(screen)
+	//g.drawSprites(screen)
+	g.drawBlocks(screen)
 
 	w := 400
 	h := 400
@@ -190,8 +191,10 @@ func main() {
 
 	var blocks []*dnd.Block
 	for i := 0; i < int(blockSize*blockSize-1); i++ {
-		regular := GetRegular()
-		block := dnd.MakeBlock(regular, color.White)
+		block := dnd.MakeBlock(uint(i), color.White)
+		posX, posY := block.GetRegular()
+		block.CellnumberX = posX
+		block.CellnumberY = posY
 		blocks = append(blocks, block)
 	}
 
