@@ -13,7 +13,7 @@ type Sprite struct {
 	y     int
 }
 
-func NewBlock(x, y int, w, h int, c color.Color) *Sprite {
+func Primitivestripe(x, y int, w, h int, c color.Color) *Sprite {
 	image := ebiten.NewImage(w, h)
 	image.Fill(c)
 
@@ -57,9 +57,8 @@ func (s *Sprite) MoveBy(screenWidth, screenHeight int, x, y int) {
 
 // Draw draws the sprite.
 func (s *Sprite) Draw(screen *ebiten.Image, dx, dy int, alpha float64) {
-	op := &ebiten.DrawImageOptions{}
+	p := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(s.x+dx), float64(s.y+dy))
 	op.ColorM.Scale(1, 1, 1, alpha)
-	screen.DrawImage(s.image, op)
 	screen.DrawImage(s.image, op)
 }
