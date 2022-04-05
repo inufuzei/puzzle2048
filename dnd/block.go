@@ -82,11 +82,30 @@ func (b *Block) In(x, y uint) bool {
 }
 
 func (b *Block) MoveOn(x, y int) {
-	positionX := int(b.CellnumberX)
-	b.CellnumberX = uint(positionX + x)
+	log.Println("MoveOn:", x, y)
 
-	positionY := int(b.CellnumberY)
-	b.CellnumberY = uint(positionY + x)
+	if y > 0 {
+		b.CellnumberY = b.CellnumberY + 1
+		return
+	}
+
+	if y < 0 {
+		b.CellnumberY = b.CellnumberY - 1
+		return
+	}
+
+	if x > 0 {
+		b.CellnumberX = b.CellnumberX + 1
+		return
+	}
+
+	if x < 0 {
+		b.CellnumberX = b.CellnumberX - 1
+		return
+	}
+
+	log.Printf("Moved block(%v) at cell %v, %v\n",
+		b.Number, b.CellnumberX, b.CellnumberY)
 }
 
 func (b *Block) Draw(screen *ebiten.Image) {
@@ -98,4 +117,6 @@ func (b *Block) Draw(screen *ebiten.Image) {
 	moji := fmt.Sprintf("%v", b.Number)
 	text.Draw(screen, moji, MPlus1pRegular_ttf,
 		int(startX+45), int(finishY-45), color.Black)
+
+	//log.Printf("Drawing block(%v) at %v, %v\n", b.Number, startX, startY)
 }

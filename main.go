@@ -46,22 +46,34 @@ func (g *Game) spriteAt(x, y int) *dnd.Sprite {
 	return nil
 }
 
+func (g *Game) blockAt(x, y int) *dnd.Block {
+	// As the sprites are ordered from back to front,
+	// search the clicked/touched sprite in reverse order.
+	for i := len(g.Blocks) - 1; i >= 0; i-- {
+		s := g.Blocks[i]
+		if s.In(uint(x), uint(y)) {
+			return s
+		}
+	}
+	return nil
+}
+
 func (g *Game) updateEachStroke(stroke *dnd.Stroke) {
 	stroke.Update()
 	if !stroke.IsReleased() {
 		return
 	}
 
-	s := stroke.DraggingObject().(*dnd.Sprite)
+	s := stroke.DraggingObject().(*dnd.Block)
 	if s == nil {
 		return
 	}
 
 	x, y := stroke.PositionDiff()
-	s.MoveBy(screenWidth, screenHeight, x, y)
+	s.MoveOn(x, y)
 
 	index := -1
-	for i, ss := range g.sprites {
+	for i, ss := range g.Blocks {
 		if ss == s {
 			index = i
 			break
@@ -69,22 +81,21 @@ func (g *Game) updateEachStroke(stroke *dnd.Stroke) {
 	}
 
 	// Move the dragged sprite to the front.
-	g.sprites = append(g.sprites[:index], g.sprites[index+1:]...)
-	g.sprites = append(g.sprites, s)
-
+	g.Blocks = append(g.Blocks[:index], g.Blocks[index+1:]...)
+	g.Blocks = append(g.Blocks, s)
 	stroke.SetDraggingObject(nil)
 }
 
 func (g *Game) updateStrokes() error {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		s := dnd.NewStroke(&dnd.MouseStrokeSource{})
-		s.SetDraggingObject(g.spriteAt(s.Position()))
+		s.SetDraggingObject(g.blockAt(s.Position()))
 		g.strokes[s] = struct{}{}
 	}
 	g.touchIDs = inpututil.AppendJustPressedTouchIDs(g.touchIDs[:0])
 	for _, id := range g.touchIDs {
 		s := dnd.NewStroke(&dnd.TouchStrokeSource{ID: id})
-		s.SetDraggingObject(g.spriteAt(s.Position()))
+		s.SetDraggingObject(g.blockAt(s.Position()))
 		g.strokes[s] = struct{}{}
 	}
 
@@ -117,28 +128,6 @@ func (g *Game) Update() error {
 	return nil
 }
 
-func (g *Game) drawSprites(screen *ebiten.Image) {
-	draggingSprites := map[*dnd.Sprite]struct{}{}
-	for s := range g.strokes {
-		if sprite := s.DraggingObject().(*dnd.Sprite); sprite != nil {
-			draggingSprites[sprite] = struct{}{}
-		}
-	}
-
-	for _, s := range g.sprites {
-		if _, ok := draggingSprites[s]; ok {
-			continue
-		}
-		s.Draw(screen, 0, 0, 1)
-	}
-	for s := range g.strokes {
-		dx, dy := s.PositionDiff()
-		if sprite := s.DraggingObject().(*dnd.Sprite); sprite != nil {
-			sprite.Draw(screen, dx, dy, 0.5)
-		}
-	}
-}
-
 func (g *Game) drawBlocks(screen *ebiten.Image) {
 	draggingBlocks := map[*dnd.Block]struct{}{}
 	for s := range g.strokes {
@@ -155,9 +144,8 @@ func (g *Game) drawBlocks(screen *ebiten.Image) {
 		s.Draw(screen)
 	}
 	for s := range g.strokes {
-		dx, dy := s.PositionDiff()
-		if block := s.DraggingObject().(*dnd.Sprite); block != nil {
-			block.Draw(screen, dx, dy, 0.5)
+		if block := s.DraggingObject().(*dnd.Block); block != nil {
+			block.Draw(screen)
 		}
 	}
 }

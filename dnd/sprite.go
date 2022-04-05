@@ -57,7 +57,7 @@ func (s *Sprite) MoveBy(screenWidth, screenHeight int, x, y int) {
 
 // Draw draws the sprite.
 func (s *Sprite) Draw(screen *ebiten.Image, dx, dy int, alpha float64) {
-	p := &ebiten.DrawImageOptions{}
+	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(s.x+dx), float64(s.y+dy))
 	op.ColorM.Scale(1, 1, 1, alpha)
 	screen.DrawImage(s.image, op)
