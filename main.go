@@ -10,8 +10,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/inufuzei/puzzle2048/dnd"
-	"github.com/inufuzei/puzzle2048/inu"
-	"github.com/inufuzei/puzzle2048/tyoco"
 )
 
 const (
@@ -22,19 +20,8 @@ const (
 )
 
 type Game struct {
-	keys           []ebiten.Key
-	Tester2187     inu.Dog
-	Tester4893     inu.Dog
-	Msg            string
-	count          int
-	Witch          bool
-	Questionlist   []tyoco.Tyoco
-	Questionnumber uint
-
-	// For Drag&Drop
 	touchIDs []ebiten.TouchID
 	strokes  map[*dnd.Stroke]struct{}
-	sprites  []*dnd.Sprite
 	Blocks   []*dnd.Block
 }
 
@@ -49,21 +36,7 @@ func (g *Game) Iscompleted() bool {
 	return true
 }
 
-func (g *Game) spriteAt(x, y int) *dnd.Sprite {
-	// As the sprites are ordered from back to front,
-	// search the clicked/touched sprite in reverse order.
-	for i := len(g.sprites) - 1; i >= 0; i-- {
-		s := g.sprites[i]
-		if s.In(x, y) {
-			return s
-		}
-	}
-	return nil
-}
-
 func (g *Game) blockAt(x, y int) *dnd.Block {
-	// As the sprites are ordered from back to front,
-	// search the clicked/touched sprite in reverse order.
 	for i := len(g.Blocks) - 1; i >= 0; i-- {
 		s := g.Blocks[i]
 		if s.In(uint(x), uint(y)) {
@@ -95,7 +68,6 @@ func (g *Game) updateEachStroke(stroke *dnd.Stroke) {
 		}
 	}
 
-	// Move the dragged sprite to the front.
 	g.Blocks = append(g.Blocks[:index], g.Blocks[index+1:]...)
 	g.Blocks = append(g.Blocks, s)
 	stroke.SetDraggingObject(nil)
@@ -130,19 +102,6 @@ func (g *Game) Update() error {
 	if err := g.updateStrokes(); err != nil {
 		return err
 	}
-	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
-	g.count = g.count + 1
-	if g.count < 60 {
-		return nil
-	}
-	g.count = 0
-	if g.Witch {
-		g.Witch = false
-		g.Msg = g.Tester2187.Hashiru()
-	} else {
-		g.Witch = true
-		g.Msg = g.Tester4893.Hashiru()
-	}
 	return nil
 }
 
@@ -169,7 +128,6 @@ func (g *Game) drawBlocks(screen *ebiten.Image) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	//g.drawSprites(screen)
 	g.drawBlocks(screen)
 	if g.Iscompleted() {
 		w := 400
@@ -214,27 +172,11 @@ func main() {
 		n := rn.Float64() * float64(len(fn))
 		b := fn[int(n)]
 		b.JustMove(blocks)
-		//log.Println("moved", b.Number, b.CellnumberX, b.CellnumberY)
 	}
 
 	game := &Game{
-		Tester2187: inu.Dog{
-			Color: "白",
-			Speed: 16.23,
-			Power: 75.56,
-		},
-		Tester4893: inu.Dog{
-			Color: "黒",
-			Speed: 32.18,
-			Power: 52.2,
-		},
-		Questionlist: tyoco.Xlist,
-
 		strokes: map[*dnd.Stroke]struct{}{},
-		sprites: []*dnd.Sprite{
-			dnd.Primitivestripe(0, 0, 100, 100, color.White),
-		},
-		Blocks: blocks,
+		Blocks:  blocks,
 	}
 
 	if err := ebiten.RunGame(game); err != nil {
