@@ -188,7 +188,7 @@ func (b *Block) JustMove(blocks []*Block) {
 			return
 		}
 	}
-	if posX < blockSize-1 {
+	if posY < blockSize-1 {
 		if _, isHere := PickBlock(blocks, posX, posY+1); !isHere {
 			b.CellnumberX = posX
 			b.CellnumberY = posY + 1
