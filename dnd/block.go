@@ -171,26 +171,36 @@ func FindNeibs(blocks []*Block, posX, posY uint) []*Block {
 	}
 	return results
 }
-func (b *Block) JustMove(blocks []*Block, posX, posY uint) {
-	if _, isHere := PickBlock(blocks, posX+1, posY); !isHere {
-		b.CellnumberX = posX + 1
-		b.CellnumberY = posY
-		return
+func (b *Block) JustMove(blocks []*Block) {
+	posX := b.CellnumberX
+	posY := b.CellnumberY
+	if posX < blockSize-1 {
+		if _, isHere := PickBlock(blocks, posX+1, posY); !isHere {
+			b.CellnumberX = posX + 1
+			b.CellnumberY = posY
+			return
+		}
 	}
-	if _, isHere := PickBlock(blocks, posX-1, posY); !isHere {
-		b.CellnumberX = posX - 1
-		b.CellnumberY = posY
-		return
+	if posX > 0 {
+		if _, isHere := PickBlock(blocks, posX-1, posY); !isHere {
+			b.CellnumberX = posX - 1
+			b.CellnumberY = posY
+			return
+		}
 	}
-	if _, isHere := PickBlock(blocks, posX, posY+1); !isHere {
-		b.CellnumberX = posX
-		b.CellnumberY = posY + 1
-		return
+	if posX < blockSize-1 {
+		if _, isHere := PickBlock(blocks, posX, posY+1); !isHere {
+			b.CellnumberX = posX
+			b.CellnumberY = posY + 1
+			return
+		}
 	}
-	if _, isHere := PickBlock(blocks, posX, posY-1); !isHere {
-		b.CellnumberX = posX
-		b.CellnumberY = posY - 1
-		return
+	if posY > 0 {
+		if _, isHere := PickBlock(blocks, posX, posY-1); !isHere {
+			b.CellnumberX = posX
+			b.CellnumberY = posY - 1
+			return
+		}
 	}
 }
 

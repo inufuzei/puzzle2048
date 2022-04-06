@@ -3,6 +3,8 @@ package main
 import (
 	"image/color"
 	"log"
+	"math/rand"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -15,6 +17,7 @@ const (
 	screenWidth  = 400
 	screenHeight = 400
 	blockSize    = uint(4)
+	shuffle      = 3
 )
 
 type Game struct {
@@ -32,6 +35,17 @@ type Game struct {
 	strokes  map[*dnd.Stroke]struct{}
 	sprites  []*dnd.Sprite
 	Blocks   []*dnd.Block
+}
+
+func (g *Game) Iscompleted() bool {
+	for _, comp := range g.Blocks {
+		regularX, regularY := comp.GetRegular()
+		if regularX != comp.CellnumberX ||
+			regularY != comp.CellnumberY {
+			return false
+		}
+	}
+	return true
 }
 
 func (g *Game) spriteAt(x, y int) *dnd.Sprite {
@@ -153,20 +167,21 @@ func (g *Game) drawBlocks(screen *ebiten.Image) {
 func (g *Game) Draw(screen *ebiten.Image) {
 	//g.drawSprites(screen)
 	g.drawBlocks(screen)
-
-	w := 400
-	h := 400
-	c := color.RGBA{
-		R: 40,
-		G: 60,
-		B: 90,
-		A: 100,
+	if g.Iscompleted() {
+		w := 400
+		h := 400
+		c := color.RGBA{
+			R: 40,
+			G: 60,
+			B: 90,
+			A: 200,
+		}
+		rect := ebiten.NewImage(w, h)
+		rect.Fill(c)
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(float64(0), float64(0))
+		screen.DrawImage(rect, op)
 	}
-	rect := ebiten.NewImage(w, h)
-	rect.Fill(c)
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(0), float64(0))
-	screen.DrawImage(rect, op)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenNoWidth, screenNoHeight int) {
@@ -184,6 +199,16 @@ func main() {
 		block.CellnumberX = posX
 		block.CellnumberY = posY
 		blocks = append(blocks, block)
+	}
+
+	rn := rand.New(rand.NewSource(time.Now().UnixMicro()))
+	for i := 0; i < shuffle; i++ {
+		fh, fhh := dnd.FindHoll(blocks)
+		fn := dnd.FindNeibs(blocks, fh, fhh)
+		n := rn.Float64() * float64(len(fn))
+		b := fn[int(n)]
+		b.JustMove(blocks)
+		log.Println("moved", b.Number, b.CellnumberX, b.CellnumberY)
 	}
 
 	game := &Game{
