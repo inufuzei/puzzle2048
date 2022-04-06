@@ -132,6 +132,68 @@ func (b *Block) MoveOn(x, y int, touch []*Block) {
 
 }
 
+func PickBlock(blocks []*Block, posX, posY uint) (*Block, bool) {
+	for _, ather := range blocks {
+		if uint(posX) == ather.CellnumberX &&
+			uint(posY) == ather.CellnumberY {
+			return ather, true
+		}
+	}
+	return nil, false
+}
+
+func FindHoll(blocks []*Block) (uint, uint) {
+	for x := 0; x < int(blockSize); x++ {
+		for y := 0; y < int(blockSize); y++ {
+			_, ishere := PickBlock(blocks, uint(x), uint(y))
+			if !ishere {
+				return uint(x), uint(y)
+			}
+		}
+	}
+	log.Fatal("NO HOLE!!!!!!!")
+	return 0, 0
+}
+
+func FindNeibs(blocks []*Block, posX, posY uint) []*Block {
+	var results []*Block
+	if res, isHere := PickBlock(blocks, posX+1, posY); isHere {
+		results = append(results, res)
+	}
+	if res, isHere := PickBlock(blocks, posX-1, posY); isHere {
+		results = append(results, res)
+	}
+	if res, isHere := PickBlock(blocks, posX, posY+1); isHere {
+		results = append(results, res)
+	}
+	if res, isHere := PickBlock(blocks, posX, posY-1); isHere {
+		results = append(results, res)
+	}
+	return results
+}
+func (b *Block) JustMove(blocks []*Block, posX, posY uint) {
+	if _, isHere := PickBlock(blocks, posX+1, posY); !isHere {
+		b.CellnumberX = posX + 1
+		b.CellnumberY = posY
+		return
+	}
+	if _, isHere := PickBlock(blocks, posX-1, posY); !isHere {
+		b.CellnumberX = posX - 1
+		b.CellnumberY = posY
+		return
+	}
+	if _, isHere := PickBlock(blocks, posX, posY+1); !isHere {
+		b.CellnumberX = posX
+		b.CellnumberY = posY + 1
+		return
+	}
+	if _, isHere := PickBlock(blocks, posX, posY-1); !isHere {
+		b.CellnumberX = posX
+		b.CellnumberY = posY - 1
+		return
+	}
+}
+
 func (b *Block) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	startX, _ := b.GetDotX()
