@@ -70,7 +70,7 @@ func (g *Game) updateEachStroke(stroke *dnd.Stroke) {
 	}
 
 	x, y := stroke.PositionDiff()
-	s.MoveOn(x, y)
+	s.MoveOn(x, y, g.Blocks)
 
 	index := -1
 	for i, ss := range g.Blocks {

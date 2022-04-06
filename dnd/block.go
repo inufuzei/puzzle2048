@@ -81,7 +81,7 @@ func (b *Block) In(x, y uint) bool {
 	return inX && inY
 }
 
-func (b *Block) MoveOn(x, y int) {
+func (b *Block) MoveOn(x, y int, touch []*Block) {
 	log.Println("MoveOn:", x, y)
 	posX := int(b.CellnumberX)
 	posY := int(b.CellnumberY)
@@ -117,11 +117,19 @@ func (b *Block) MoveOn(x, y int) {
 		posY = int(blockSize) - 1
 	}
 
+	log.Printf("Moved block(%v) at cell %v, %v\n",
+		b.Number, b.CellnumberX, b.CellnumberY)
+
+	for _, ather := range touch {
+		if uint(posX) == ather.CellnumberX &&
+			uint(posY) == ather.CellnumberY {
+			return
+		}
+	}
+
 	b.CellnumberX = uint(posX)
 	b.CellnumberY = uint(posY)
 
-	log.Printf("Moved block(%v) at cell %v, %v\n",
-		b.Number, b.CellnumberX, b.CellnumberY)
 }
 
 func (b *Block) Draw(screen *ebiten.Image) {
