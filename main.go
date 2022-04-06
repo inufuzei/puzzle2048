@@ -18,7 +18,7 @@ const (
 	screenWidth  = 400
 	screenHeight = 400
 	blockSize    = uint(4)
-	shuffle      = 3
+	shuffle      = 100
 )
 
 type Game struct {
@@ -102,6 +102,9 @@ func (g *Game) updateEachStroke(stroke *dnd.Stroke) {
 }
 
 func (g *Game) updateStrokes() error {
+	if g.Iscompleted() {
+		return nil
+	}
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		s := dnd.NewStroke(&dnd.MouseStrokeSource{})
 		s.SetDraggingObject(g.blockAt(s.Position()))
