@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/inufuzei/puzzle2048/dnd"
 	"github.com/inufuzei/puzzle2048/inu"
 	"github.com/inufuzei/puzzle2048/tyoco"
@@ -181,6 +182,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(0), float64(0))
 		screen.DrawImage(rect, op)
+
+		text.Draw(screen, "完成", dnd.MPlus1pRegular_ttf, 170, 200, color.Black)
 	}
 }
 
