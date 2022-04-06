@@ -117,8 +117,8 @@ func (b *Block) MoveOn(x, y int, touch []*Block) {
 		posY = int(blockSize) - 1
 	}
 
-	log.Printf("Moved block(%v) at cell %v, %v\n",
-		b.Number, b.CellnumberX, b.CellnumberY)
+	//log.Printf("Moved block(%v) at cell %v, %v\n",
+	//b.Number, b.CellnumberX, b.CellnumberY)
 
 	for _, ather := range touch {
 		if uint(posX) == ather.CellnumberX &&

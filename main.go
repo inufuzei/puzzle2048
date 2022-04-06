@@ -18,7 +18,7 @@ const (
 	screenWidth  = 400
 	screenHeight = 400
 	blockSize    = uint(4)
-	shuffle      = 100
+	shuffle      = 1000
 )
 
 type Game struct {
@@ -214,7 +214,7 @@ func main() {
 		n := rn.Float64() * float64(len(fn))
 		b := fn[int(n)]
 		b.JustMove(blocks)
-		log.Println("moved", b.Number, b.CellnumberX, b.CellnumberY)
+		//log.Println("moved", b.Number, b.CellnumberX, b.CellnumberY)
 	}
 
 	game := &Game{
